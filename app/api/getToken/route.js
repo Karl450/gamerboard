@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 export async function POST(request) {
+
+  console.log('Received request with method:', request.method);  // Logs the request method
   const { CLIENT_ID, CLIENT_SECRET } = process.env;
+
 
   try {
     const response = await axios.post('https://us.battle.net/oauth/token', null, {

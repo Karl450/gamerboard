@@ -1,23 +1,40 @@
-import DBD_Nav from "../dbd_nav/page";
-
+import Navbar from "@/app/components/Navbar";
 async function getShrine() {
-    const res = await fetch('https://dbd.tricky.lol/api/shrine?includeperkinfo');
-    const result = await res.json();
+
+  const res = await fetch('https://dbd.tricky.lol/api/shrine?includeperkinfo');
+  const result = await res.json();
+  if (result && result.perks) {
     return result.perks;
+  }
+  else {
+    return null
+  }
 }
 
 export default async function DBD_Shrine() {
     const shrineData = await getShrine();
     const shrineArray = Object.values(shrineData);
 
+    const navLinks = [
+      { href: '/', name: 'Home' },
+      { href: '/dbd', name: 'DBD' },
+      { href: '/dbd/shrine', name: 'Shrine' },
+      { href: '/dbd/perks', name: 'Perks' },
+    ];
+
+    //could happen on Tuesday
+    if (!shrineData) {
+      return <h1 className="flex flex-col items-center justify-center min-h-screen text-xl">Oups, the shrine was not found, please try later</h1>;
+    }
+
     return (
       <>
-        <DBD_Nav />
-        <div className="flex flex-col justify-center min-h-screen">
+        <Navbar links={navLinks} />
+        <div className="flex flex-col justify-center min-h-screen overflow-hidden">
           {/* Top Element */}
           <div className="flex justify-center mb-4">
             <div className="transform rotate-45">
-              <div className="transform -rotate-45">
+              <div className="transform -rotate-45 w-[10rem]">
                 <div className="text-center text-lg">{shrineArray[0].name}</div>
                 <img
                   className="inline max-w-[18px] h-auto mr-1"
@@ -42,7 +59,7 @@ export default async function DBD_Shrine() {
           <div className="flex justify-center mb-4">
             {/* Left Element */}
             <div className="transform rotate-45 mr-28">
-              <div className="transform -rotate-45">
+              <div className="transform -rotate-45 w-[10rem]">
               <div className="text-center text-lg">{shrineArray[1].name}</div>
                 <img
                   className="inline max-w-[18px] h-auto mr-1"
@@ -64,7 +81,7 @@ export default async function DBD_Shrine() {
       
             {/* Right Element */}
             <div className="transform rotate-45 ml-28">
-              <div className="transform -rotate-45">
+              <div className="transform -rotate-45 w-[10rem]">
               <div className="text-center text-lg">{shrineArray[2].name}</div>
                 <img
                   className="inline max-w-[18px] h-auto mr-1"
@@ -88,7 +105,7 @@ export default async function DBD_Shrine() {
           {/* Bottom Element */}
           <div className="flex justify-center">
             <div className="transform rotate-45">
-              <div className="transform -rotate-45">
+              <div className="transform -rotate-45 w-[10rem]">
               <div className="text-center text-lg">{shrineArray[3].name}</div>
                 <img
                   className="inline max-w-[18px] h-auto mr-1"

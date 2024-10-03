@@ -5,7 +5,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="grid grid-cols-2 gap-16 h-80 w-[750px]">
         <Link
-          href="/dbd/shrine"
+          href="/dbd"
           className="deadByDaylight bg-dbd bg-cover bg-center h-full w-full block"
         />
         <Link

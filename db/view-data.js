@@ -6,7 +6,7 @@ const dbPath = path.join(__dirname, 'classicwow.db');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-    db.all('SELECT * FROM connected_realms', (err, rows) => {
+    db.all('SELECT * FROM realms', (err, rows) => {
         if (err) {
             console.error('Error querying data:', err.message);
         } else {
