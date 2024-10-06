@@ -1,17 +1,91 @@
 import Navbar from "@/app/components/Navbar";
 import Perks from "@/app/components/Perks";
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
+import { type } from "os";
 
 async function getPerks() {
 
-    const res = await fetch('https://dbd.tricky.lol/api/perks');
-    const result = await res.json();
 
-    if (result) {
-      return result;
+    const db = await openDb();
+    await createTableIfNotExists(db);
+
+    const currentTime = new Date().getTime();
+
+    const perksExist = await db.all("SELECT * FROM perks");
+
+
+    //this if work well, dont touch it
+    if (perksExist.length > 0) {
+        console.warn('PERKS exist')
+        const mostRecentPerk = perksExist[0];
+        const perkTs = new Date(mostRecentPerk.ts).getTime();
+        const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+        //data is less than a week old
+        if (currentTime - perkTs < oneWeek) {
+            return perksExist;
+        }
     }
     else {
-      return null
+        console.warn('PERKS does NOT exist')
+        const res = await fetch('https://dbd.tricky.lol/api/perks');
+        const result = await res.json();
+    
+        if (result) {
+            // Remove old perks from the db
+            await db.run(`DELETE FROM perks`);
+
+            const perksArray = Object.entries(result);
+
+            // Insert the fresh one
+            const insertQuery = `
+                INSERT INTO perks (name, role, character, description, image, tunables, ts)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            `;
+
+            for (const [perkKey, perk] of perksArray) {
+                await db.run(insertQuery, [
+                    perk.name,
+                    perk.role,
+                    perk.character,
+                    perk.description,
+                    perk.image,
+                    JSON.stringify(perk.tunables)
+                ]);
+            }
+
+            return result;
+        }
+        else {
+          return null
+        }
     }
+
+}
+
+async function openDb() {
+    const dbPath = path.join(process.cwd(), 'db', 'dbd.db');
+    return open({
+        filename: dbPath,
+        driver: sqlite3.Database,
+    });
+}
+
+async function createTableIfNotExists(db) {
+    await db.run(`
+        CREATE TABLE IF NOT EXISTS perks (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            role TEXT NOT NULL,
+            character TEXT,
+            description TEXT NOT NULL,
+            image TEXT,
+            tunables TEXT NOT NULL,
+            ts DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
 }
 
 export default async function DBD_Perks() {
@@ -23,43 +97,25 @@ export default async function DBD_Perks() {
         { href: '/dbd/perks', name: 'Perks' },
     ];
 
-    const jsonObject = {
-        Ace_In_The_Hole: {
-          name: "Ace in the Hole",
-          description: "Lady Luck always seems to be throwing something good your way.<br><br>When retrieving an item from a chest, there is a {0}% chance that a Very Rare (or lower) add-on will be attached to it.<br><br>{1}% chance of finding an add-on of Uncommon rarity (or lower).<br><br>When escaping, keep any add-ons your item has.",
-          role: "Survivor",
-          tunables: [ [ '100' ], [ '10', '25', '50' ] ],
-          image: "UI/Icons/Perks/Cannibal/iconPerks_BBQAndChili.png"
-        },
-        Adrenaline: {
-          name: "Adrenaline",
-          description: "You are fuelled by unexpected energy when on the verge of escape.<br><br>This perk activates when the exit gates are powered.<br><br>Instantly heal one health state if you are injured or in the dying state and sprint at {0}% of your normal running speed for {1} seconds.<br><br>Adrenaline ignores the Exhausted status effect. Causes the <b>Exhausted</b> status effect for {2} seconds.<br><br>Exhausted prevents Survivors from activating exhausting perks.",
-          role: "Survivor",
-          tunables: [ [ '150' ], [ '3' ], [ '60', '50', '40' ] ],
-          image: "UI/Icons/Perks/Cannibal/iconPerks_BBQAndChili.png"
-        },
-        BarbecueAndChili: {
-          name: "Barbecue & Chili",
-          description: "A deep bond with The Entity unlocks potential in one's aura reading ability.<li>After hooking a Survivor, all other Survivors' auras are revealed to you for {0} seconds when they are further than {1} meters from the hook.</li>",
-          role: "Killer",
-          tunables: [ [ '5' ], [ '60', '50', '40' ] ],
-          image: "UI/Icons/Perks/Cannibal/iconPerks_BBQAndChili.png"
-        }
-    };
+    let data = await getPerks();
 
-    const data = await getPerks();
-      
-    const perkArray = Object.values(data);
+    if (!Array.isArray(data)) {
+        data = Object.values(data);
+    }
 
-    const perkData = perkArray.map((perk) => {
+    const perkData = data.map((perk) => {
+
+        const tunables = JSON.parse(perk.tunables || '[]');
+        
         return {
             name: perk.name,
             role: perk.role,
             desc: perk.description,
-            tunables: perk.tunables,
-            image: perk.image
-        }
-    })
+            character: perk.character,
+            tunables: tunables,
+            image: perk.image,
+        };
+    });
 
     return (
         <>
