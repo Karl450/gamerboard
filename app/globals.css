@@ -28,6 +28,17 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'ProtestStrike-Regular';
+  src: url('/fonts/ProtestStrike-Regular') format('ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-protest-strike {
+  font-family: var(--font-protest-strike), 'ProtestStrike-Regular', sans-serif;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

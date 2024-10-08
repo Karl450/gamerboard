@@ -95,6 +95,7 @@ export default async function DBD_Perks() {
         { href: '/dbd', name: 'DBD' },
         { href: '/dbd/shrine', name: 'Shrine' },
         { href: '/dbd/perks', name: 'Perks' },
+        { href: '/dbd/wislist', name: 'Wishlist' },
     ];
 
     let data = await getPerks();
@@ -106,7 +107,7 @@ export default async function DBD_Perks() {
     const perkData = data.map((perk) => {
 
         const tunables = JSON.parse(perk.tunables || '[]');
-        
+
         return {
             name: perk.name,
             role: perk.role,
