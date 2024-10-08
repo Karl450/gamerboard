@@ -45,6 +45,7 @@ export default async function DeadByDayLight() {
 
     const navLinks = [
         { href: '/', name: 'Home' },
+        { href: '/dbd/shrine', name: 'Shrine' },
         { href: '/dbd/perks', name: 'Perks' },
     ];
 

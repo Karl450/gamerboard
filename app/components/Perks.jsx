@@ -42,30 +42,23 @@ export default function SearchBar_Perks({className, perks}) {
         });
     };
 
+    const sendWishlistToDS = async (perkName) => {
+        try {
+            const response = await fetch("/api/discordWebhook", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ perkName }),
+            });
+            if (!response.ok) {
+                console.log('Failed to send message to Discord');
+            }
+        } catch (error) {
+            console.log(`Failed to send wishlist to Discord: ${error}`);
+        }
+    };
 
-    const sendWishlistToDS = async (event, perkName) => {
-        event.preventDefault();
-
-        const dsWebhook = 'https://discordapp.com/api/webhooks/1292988831078809640/y6piOQybiAxpqdAXs8J3FHUv_aOF0uUKxPxLordsq0Ltdlwe-1jc3rY1QnwuH8QI1xuN';
-
-        const webhookBody = {
-            embeds: [{
-            title: 'PERK WAS FOUND ON THE SHRINE!',
-            fields: [
-                { name: 'Perk', value: perkName },
-            ]
-            }],
-        };
-
-        const response = await fetch(dsWebhook, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(webhookBody),
-        });
-
-    }
 
 
     return (
@@ -92,7 +85,10 @@ export default function SearchBar_Perks({className, perks}) {
                             <tr key={index} className="border-y-[1px] border-zinc-700">
                                 <td className="relative px-4 py-8 whitespace-nowrap flex flex-col items-center">
                                     {/* wishlist btn */}
-                                    <form onSubmit={(e) => sendWishlistToDS(e, perk.name)}>
+                                    <form onSubmit={(e) => { 
+                                        e.preventDefault();
+                                        sendWishlistToDS(perk.name);
+                                    }}>
                                         <button
                                             onClick={() => handleWishlist(perk.name)}
                                             type="submit" // Ensure the button is of type submit

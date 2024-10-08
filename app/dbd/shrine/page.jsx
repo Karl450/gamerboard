@@ -18,7 +18,6 @@ export default async function DBD_Shrine() {
     const navLinks = [
       { href: '/', name: 'Home' },
       { href: '/dbd', name: 'DBD' },
-      { href: '/dbd/shrine', name: 'Shrine' },
       { href: '/dbd/perks', name: 'Perks' },
     ];
 
