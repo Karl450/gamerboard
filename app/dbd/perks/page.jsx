@@ -1,5 +1,5 @@
 import Navbar from "@/app/components/Navbar";
-import Perks from "@/app/components/Perks";
+import Perks from "@/app/dbd/perks/Perks";
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import path from 'path';
@@ -12,7 +12,6 @@ async function getPerks() {
     await createTableIfNotExists(db);
 
     const currentTime = new Date().getTime();
-
     const perksExist = await db.all("SELECT * FROM perks");
 
 
@@ -28,39 +27,37 @@ async function getPerks() {
             return perksExist;
         }
     }
-    else {
-        console.warn('PERKS does NOT exist')
-        const res = await fetch('https://dbd.tricky.lol/api/perks');
-        const result = await res.json();
-    
-        if (result) {
-            // Remove old perks from the db
-            await db.run(`DELETE FROM perks`);
 
-            const perksArray = Object.entries(result);
+    console.warn('Fetching fresh perks data from API');
+    const res = await fetch('https://dbd.tricky.lol/api/perks');
+    const result = await res.json();
 
-            // Insert the fresh one
-            const insertQuery = `
-                INSERT INTO perks (name, role, character, description, image, tunables, ts)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            `;
+    if (result) {
+        // Remove old perks from the db
+        await db.run(`DELETE FROM perks`);
 
-            for (const [perkKey, perk] of perksArray) {
-                await db.run(insertQuery, [
-                    perk.name,
-                    perk.role,
-                    perk.character,
-                    perk.description,
-                    perk.image,
-                    JSON.stringify(perk.tunables)
-                ]);
-            }
+        const perksArray = Object.entries(result);
 
-            return result;
+        // Insert the fresh perks into the database
+        const insertQuery = `
+            INSERT INTO perks (name, role, character, description, image, tunables, ts)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
+
+        for (const [perkKey, perk] of perksArray) {
+            await db.run(insertQuery, [
+                perk.name,
+                perk.role,
+                perk.character,
+                perk.description,
+                perk.image,
+                JSON.stringify(perk.tunables)
+            ]);
         }
-        else {
-          return null
-        }
+
+        return result;
+    } else {
+        return null;
     }
 
 }

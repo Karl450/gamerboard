@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 export default function SearchBar_Perks({className, perks}) {
 
     const [query, setQuery] = useState('');
-    const [wishlist, setWishlist] = useState(new Set());
 
     const handleSearch = (e) => {
         setQuery(e.target.value);
@@ -27,21 +26,30 @@ export default function SearchBar_Perks({className, perks}) {
         });
     };
 
-    const handleWishlist = (perk) => {
-        setWishlist((prevWishlist) => {
-
-            const newWishlist = new Set(prevWishlist);
+    // Add perk to the wishlist
+    const addPerkToWishlist = async (perk) => {
+        try {
+            const response = await fetch('/api/dbd/wishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ perkName: perk }),
+            });
     
-            if (newWishlist.has(perk)) {
-                console.log(`${perk} is already in wishlist`);
-                return prevWishlist;
+            if (!response.ok) {
+                const data = await response.json();
+                console.error(`Failed to add ${perk} to wishlist:`, data.message);
             } else {
-                newWishlist.add(perk);
-                return newWishlist;
+                console.log(`${perk} successfully added to wishlist`);
             }
-        });
+        } catch (error) {
+            console.error(`Error while adding ${perk} to wishlist:`, error);
+        }
     };
 
+    
+    // Send wishlist perk to DS if found
     const sendWishlistToDS = async (perkName) => {
         try {
             const response = await fetch("/api/discordWebhook", {
@@ -87,10 +95,10 @@ export default function SearchBar_Perks({className, perks}) {
                                     {/* wishlist btn */}
                                     <form onSubmit={(e) => { 
                                         e.preventDefault();
-                                        sendWishlistToDS(perk.name);
+                                        //sendWishlistToDS(perk.name);
                                     }}>
                                         <button
-                                            onClick={() => handleWishlist(perk.name)}
+                                            onClick={() => addPerkToWishlist(perk.name)}
                                             type="submit" // Ensure the button is of type submit
                                             className="absolute left-[-200px] top-32 text-white py-1 px-4 rounded border"
                                         >
