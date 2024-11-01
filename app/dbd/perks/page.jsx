@@ -91,7 +91,7 @@ export default async function DBD_Perks() {
         { href: '/', name: 'Home' },
         { href: '/dbd', name: 'DBD' },
         { href: '/dbd/shrine', name: 'Shrine' },
-        { href: '/dbd/wislist', name: 'Wishlist' },
+        { href: '/dbd/wishlist', name: 'Wishlist' },
     ];
 
     let data = await getPerks();

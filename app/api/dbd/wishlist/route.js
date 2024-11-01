@@ -64,3 +64,26 @@ export async function POST(req) {
         });
     }
 }
+
+
+export async function DELETE(req) {
+    const { perkId } = await req.json(); // Expecting perkId from the request body
+
+    console.warn('Wishlist DELETE', perkId);
+
+    try {
+        const db = await openDb();
+        await db.run("DELETE FROM wishlist WHERE id = ?", perkId);
+
+        return new Response(JSON.stringify({ message: 'Perk deleted from wishlist' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error('Error deleting perk from wishlist:', error);
+        return new Response(JSON.stringify({ err: 'Failed to delete perk from wishlist' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
