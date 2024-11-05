@@ -51,15 +51,17 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
-      <span className="text-5xl md:text-7xl pb-72 text-amber-500 font-protest-strike">Gamerboard</span>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 h-80 w-full max-w-3xl">
+      <span className="text-5xl md:text-7xl text-amber-500 font-protest-strike pb-8">
+        Gamerboard
+      </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 w-full max-w-5xl">
         <Link
           href="/dbd"
-          className="deadByDaylight bg-dbd bg-cover bg-center h-full w-full block hover:scale-110 duration-700"
+          className="deadByDaylight bg-dbd bg-cover bg-center h-64 md:h-80 w-full block transform hover:scale-110 transition duration-700 rounded"
         />
         <Link
-          href="classicwow"
-          className="wowClassic bg-wow-classic bg-cover bg-center h-full w-full block hover:scale-110 duration-700"
+          href="/classicwow"
+          className="wowClassic bg-wow-classic bg-cover bg-center h-64 md:h-80 w-full block transform hover:scale-110 transition duration-700 rounded"
         />
       </div>
     </div>

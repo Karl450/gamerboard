@@ -52,12 +52,20 @@ export default async function Wishlist() {
             <Navbar links={navLinks} />
             <table>
                 <tbody>
-                    {wishlist.map((item, index) => (
+
+                {wishlist.length === 0 ? (
+                    <tr>
+                        <td colSpan="3" className="text-center py-4">
+                            <span>oops! Wishlist is empty</span>
+                        </td>
+                    </tr>
+                ) : (
+                    wishlist.map((item, index) => (
                         <tr key={item.id}>
                             <td>{item.perkName}</td>
                             <td>
                                 <img
-                                     src={`/images/Content/${perksImageMap.get(item.perkName)}`}
+                                    src={`/images/Content/${perksImageMap.get(item.perkName)}`}
                                     alt={item.perkName}
                                     className="w-20 h-auto"
                                 />
@@ -66,7 +74,9 @@ export default async function Wishlist() {
                                 <DeleteBtn perkId={item.id} />
                             </td>
                         </tr>
-                    ))}
+                    ))
+                )}
+
                 </tbody>
             </table>
         </>

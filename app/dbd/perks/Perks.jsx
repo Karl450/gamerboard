@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 export default function SearchBar_Perks({className, perks}) {
 
     const [query, setQuery] = useState('');
+    const [isClicked, setIsClicked] = useState(false);
+    const [wishlist, setWishlist] = useState([]);
 
     const handleSearch = (e) => {
         setQuery(e.target.value);
@@ -26,6 +28,27 @@ export default function SearchBar_Perks({className, perks}) {
         });
     };
 
+    useEffect(() => {
+        const fetchWishlist = async () => {
+            try {
+                const response = await fetch('/api/dbd/wishlist');
+                if (!response.ok) throw new Error('Failed to fetch wishlist');
+                const data = await response.json();
+                setWishlist(data);
+                
+                const clickedState = {};
+                data.forEach(item => {
+                    clickedState[item.perkName] = true;
+                });
+                setIsClicked(clickedState);
+            } catch (error) {
+                console.error('Error fetching wishlist:', error);
+            }
+        };
+
+        fetchWishlist();
+    }, []);
+
     // Add perk to the wishlist
     const addPerkToWishlist = async (perk) => {
         try {
@@ -42,6 +65,7 @@ export default function SearchBar_Perks({className, perks}) {
                 console.error(`Failed to add ${perk} to wishlist:`, data.message);
             } else {
                 console.log(`${perk} successfully added to wishlist`);
+                setIsClicked((prev) => ({ ...prev, [perk]: true }));
             }
         } catch (error) {
             console.error(`Error while adding ${perk} to wishlist:`, error);
@@ -103,11 +127,13 @@ export default function SearchBar_Perks({className, perks}) {
                                 }}
                             >
                                 <button
-                                onClick={() => addPerkToWishlist(perk.name)}
-                                type="button"
-                                className="mb-2 text-white py-1 px-2 rounded border text-xs"
+                                    onClick={() => addPerkToWishlist(perk.name)}
+                                    type="button"
+                                    className={`mb-2 py-1 px-2 rounded border text-xs ${
+                                        isClicked[perk.name] ? 'bg-green-500 text-white' : 'text-white'
+                                    }`}
                                 >
-                                Add to Wishlist
+                                    {isClicked[perk.name] ? 'On Wishlist' : 'Add to Wishlist'}
                                 </button>
                             </form>
                             <span className="text-sky-400">{perk.name}</span>
